@@ -1,4 +1,5 @@
 "use client";
+import ProtectedWrapper from "@/components/shared/ProtectedWrapper";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { getPostById, updatePost, deletePost } from "@/lib/api";
@@ -6,7 +7,7 @@ import { Post } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function SinglePostPage() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
   const postId = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "";
@@ -19,11 +20,6 @@ export default function SinglePostPage() {
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      router.replace("/login");
-      return;
-    }
     getPostById(postId)
       .then(p => {
         setPost(p);
@@ -32,7 +28,7 @@ export default function SinglePostPage() {
       })
       .catch(() => setError("Post not found or access denied"))
       .finally(() => setLoading(false));
-  }, [isAuthenticated, authLoading, postId, router]);
+  }, [postId]);
 
   const isOwner = user && post && post.authorId === user.id;
 
@@ -67,55 +63,57 @@ export default function SinglePostPage() {
     }
   };
 
-  if (authLoading || loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!post) return null;
 
   return (
-    <div style={{ maxWidth: 600, margin: "2rem auto" }}>
-      <h1>Post Details</h1>
-      {editMode ? (
-        <>
-          <div>
-            <label>Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              style={{ width: "100%", marginBottom: 12 }}
-              autoFocus
-            />
-          </div>
-          <div>
-            <label>Content</label>
-            <textarea
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              style={{ width: "100%", minHeight: 100, marginBottom: 12 }}
-            />
-          </div>
-          <button onClick={handleSave} disabled={actionLoading} style={{ marginRight: 8 }}>
-            {actionLoading ? "Saving..." : "Save"}
-          </button>
-          <button onClick={handleCancel} disabled={actionLoading}>Cancel</button>
-        </>
-      ) : (
-        <>
-          <h2>{post.title}</h2>
-          <p>{post.content}</p>
-          <div style={{ fontSize: 14, color: '#666' }}>
-            By {post.author?.name || post.author?.email || 'Unknown'}
-          </div>
-          {isOwner && (
-            <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-              <button onClick={handleEdit}>Edit</button>
-              <button onClick={handleDelete} style={{ color: 'red' }} disabled={actionLoading}>
-                {actionLoading ? "Deleting..." : "Delete"}
-              </button>
+    <ProtectedWrapper>
+      <div style={{ maxWidth: 600, margin: "2rem auto" }}>
+        <h1>Post Details</h1>
+        {editMode ? (
+          <>
+            <div>
+              <label>Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                style={{ width: "100%", marginBottom: 12 }}
+                autoFocus
+              />
             </div>
-          )}
-        </>
-      )}
-    </div>
+            <div>
+              <label>Content</label>
+              <textarea
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                style={{ width: "100%", minHeight: 100, marginBottom: 12 }}
+              />
+            </div>
+            <button onClick={handleSave} disabled={actionLoading} style={{ marginRight: 8 }}>
+              {actionLoading ? "Saving..." : "Save"}
+            </button>
+            <button onClick={handleCancel} disabled={actionLoading}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <h2>{post.title}</h2>
+            <p>{post.content}</p>
+            <div style={{ fontSize: 14, color: '#666' }}>
+              By {post.author?.name || post.author?.email || 'Unknown'}
+            </div>
+            {isOwner && (
+              <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+                <button onClick={handleEdit}>Edit</button>
+                <button onClick={handleDelete} style={{ color: 'red' }} disabled={actionLoading}>
+                  {actionLoading ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </ProtectedWrapper>
   );
 } 

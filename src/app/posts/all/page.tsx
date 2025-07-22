@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getAllPosts } from "@/lib/api";
 import { Post } from "@/types";
 import PostCard from "@/components/PostCard";
+import ProtectedWrapper from "@/components/shared/ProtectedWrapper";
 
 export default function AllPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -17,14 +18,16 @@ export default function AllPostsPage() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 600, margin: "2rem auto" }}>
-      <h1>All Posts</h1>
-      {loading && <div>Loading...</div>}
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {posts.length === 0 && !loading && <div>No posts found.</div>}
-      {posts.map(post => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
+    <ProtectedWrapper>
+      <div style={{ maxWidth: 600, margin: "2rem auto" }}>
+        <h1>All Posts</h1>
+        {loading && <div>Loading...</div>}
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        {posts.length === 0 && !loading && <div>No posts found.</div>}
+        {posts.map(post => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
+    </ProtectedWrapper>
   );
 } 
