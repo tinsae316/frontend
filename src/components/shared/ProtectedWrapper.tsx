@@ -1,19 +1,19 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ProtectedWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.replace("/login");
+    if (status === "unauthenticated") {
+      router.replace("/auth/login");
     }
-  }, [isAuthenticated, loading, router]);
+  }, [status, router]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!isAuthenticated) return null;
+  if (status === "loading") return <div>Loading...</div>;
+  if (status === "unauthenticated") return null;
 
   return <>{children}</>;
 } 

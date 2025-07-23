@@ -1,14 +1,17 @@
 import axios from 'axios';
 import { AuthResponse, Post, User } from '@/types';
+import { getSession } from 'next-auth/react';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
 });
 
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     if (typeof window === 'undefined') return config;
-    const token = localStorage.getItem('token');
+    // Get the NextAuth accessToken from the session
+    const session = await getSession();
+    const token = (session as any)?.accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,16 +30,6 @@ api.interceptors.response.use(
   },
 );
 
-function setToken(token: string) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('token', token);
-}
-
-function removeToken() {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('token');
-}
-
 export async function signup(
   data: { name: string; email: string; password: string },
 ): Promise<{ message: string; userId: string }> {
@@ -44,13 +37,12 @@ export async function signup(
 }
 
 export async function login(data: { email: string; password: string }): Promise<AuthResponse> {
-  const res: AuthResponse = await api.post('/auth/login', data);
-  setToken(res.access_token);
-  return res;
+  // No longer needed, handled by NextAuth
+  throw new Error('Use NextAuth signIn instead');
 }
 
 export function logout() {
-  removeToken();
+  // No longer needed, handled by NextAuth
 }
 
 export async function getUserPosts(): Promise<Post[]> {

@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import NextAuthSessionProvider from "@/components/shared/SessionProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,11 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
+        <NextAuthSessionProvider>
           <Navbar />
           <main style={{ minHeight: "80vh" }}>{children}</main>
           <Footer />
-        </AuthProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );

@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth();
+  const { data: session } = useSession();
+  const isAuthenticated = !!session;
   const router = useRouter();
 
   const handleBrowsePosts = () => {

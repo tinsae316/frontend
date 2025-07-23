@@ -1,33 +1,35 @@
 "use client";
-import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
 
 export default function LoginPage() {
-  const { login, loading, isAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/posts");
-    }
-  }, [isAuthenticated, router]);
+    if (session) router.replace("/posts");
+  }, [session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      await login(email, password);
-      router.push("/posts");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
-    }
+    setLoading(true);
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password
+    });
+    setLoading(false);
+    if (res?.error) setError(res.error);
+    else router.push("/posts");
   };
 
-  if (isAuthenticated) return null;
+  if (session) return null;
 
   return (
     <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
@@ -82,16 +84,10 @@ export default function LoginPage() {
               />
             </div>
             {error && <div style={{ color: "#dc2626", marginBottom: 10, fontSize: 15 }}>{error}</div>}
-            <button type="submit" disabled={loading} style={{ width: "100%", padding: "12px 0", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 17, marginTop: 8, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 2px 8px rgba(37,99,235,0.08)", letterSpacing: 0.2 }}>
-              {loading ? "Logging in..." : "Login"}
+            <button type="submit" style={{ width: "100%", padding: "12px 0", background: loading ? "#93c5fd" : "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 17, cursor: loading ? "not-allowed" : "pointer", marginTop: 8 }} disabled={loading}>
+              {loading ? "Loading..." : "Login"}
             </button>
           </form>
-          <button
-            onClick={() => router.push("/auth/signup")}
-            style={{ width: "100%", padding: "11px 0", background: "#f1f5f9", color: "#2563eb", border: "none", borderRadius: 8, fontWeight: 500, fontSize: 16, marginTop: 16, cursor: "pointer", transition: "background 0.15s" }}
-          >
-            Don&apos;t have an account? Sign up
-          </button>
         </div>
       </div>
     </div>
