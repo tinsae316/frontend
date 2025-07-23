@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getAllPosts } from "@/lib/api";
+import { getAllPosts } from "@/services/api";
 import { Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import ProtectedWrapper from "@/components/shared/ProtectedWrapper";

@@ -2,7 +2,7 @@
 import ProtectedWrapper from "@/components/shared/ProtectedWrapper";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPost } from "@/lib/api";
+import { createPost } from "@/services/api";
 
 export default function CreatePostPage() {
   const router = useRouter();

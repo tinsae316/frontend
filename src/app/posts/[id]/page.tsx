@@ -2,7 +2,7 @@
 import ProtectedWrapper from "@/components/shared/ProtectedWrapper";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getPostById, updatePost, deletePost } from "@/lib/api";
+import { getPostById, updatePost, deletePost } from "@/services/api";
 import { Post } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -21,7 +21,7 @@ export default function SinglePostPage() {
 
   useEffect(() => {
     getPostById(postId)
-      .then(p => {
+      .then((p: Post) => {
         setPost(p);
         setTitle(p.title);
         setContent(p.content);

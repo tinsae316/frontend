@@ -1,7 +1,7 @@
 "use client";
 import ProtectedWrapper from "@/components/shared/ProtectedWrapper";
 import { useEffect, useState } from "react";
-import { getUserPosts } from "@/lib/api";
+import { getUserPosts } from "@/services/api";
 import { Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import { useAuth } from "@/hooks/useAuth";

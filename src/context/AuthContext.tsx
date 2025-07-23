@@ -1,8 +1,15 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { login as apiLogin, logout as apiLogout, signup as apiSignup, getUserPosts, getMe } from '@/lib/api';
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  signup as apiSignup,
+  getUserPosts,
+  getMe,
+} from '@/services/api';
 import { User } from '@/types';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
