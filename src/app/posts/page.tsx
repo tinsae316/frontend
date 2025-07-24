@@ -6,6 +6,8 @@ import { Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import { useSession } from "next-auth/react";
 import { User } from "@/types";
+import Spinner from "@/components/shared/Spinner";
+
 
 export default function UserPostsPage() {
   const { data: session } = useSession();
@@ -21,12 +23,13 @@ export default function UserPostsPage() {
       .catch(() => setError("Failed to load your posts"))
       .finally(() => setLoading(false));
   }, [session]);
-
+  // Removed duplicate useSession hook to fix redeclaration error
+  console.log(session?.accessToken); // This is your backend access token   
   return (
     <ProtectedWrapper>
       <div style={{ maxWidth: 600, margin: "2rem auto" }}>
         <h1>My Posts</h1>
-        {loading && <div>Loading...</div>}
+        {loading && <Spinner />}
         {error && <div style={{ color: "red" }}>{error}</div>}
         {posts.length === 0 && !loading && <div>You have no posts yet.</div>}
         {posts.map(post => (

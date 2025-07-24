@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getPostById, updatePost, deletePost } from "@/services/api";
 import { Post } from "@/types";
 import { useSession } from "next-auth/react";
+import Spinner from "@/components/shared/Spinner";
 
 export default function SinglePostPage() {
   const { data: session } = useSession();
@@ -66,7 +67,7 @@ export default function SinglePostPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner />;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!post) return null;
 

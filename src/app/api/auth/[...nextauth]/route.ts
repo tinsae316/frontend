@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import jwt from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
 
 const handler = NextAuth({
   providers: [
@@ -17,25 +17,31 @@ const handler = NextAuth({
           body: JSON.stringify(credentials)
         });
         if (!res.ok) return null;
-        const user = await res.json();
-        if (user) return user;
+        const data = await res.json();
+        if (data && data.access_token) {
+          // Return a minimal object, type-cast as any for NextAuth
+          return { access_token: data.access_token } as any;
+        }
         return null;
       }
     })
   ],
-  session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 }, // 7 days in seconds
+  session: { strategy: "jwt", maxAge: 1 * 24 * 60 * 60 }, // 7 days in seconds
   pages: {
     signIn: "/auth/login",
     error: "/auth/login"
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        // Sign a JWT for backend API use
-        token.accessToken = jwt.sign({ sub: user.id }, 'jwt-secret', { expiresIn: '1d' });
+      if (user && (user as any).access_token) {
+        token.accessToken = (user as any).access_token;
+        // Define the expected payload type
+        type JwtPayload = { sub: string; name: string; email: string };
+        // Decode user info from token
+        const decoded = jwtDecode<JwtPayload>(token.accessToken as string);
+        token.id = decoded.sub;
+        token.name = decoded.name;
+        token.email = decoded.email;
       }
       return token;
     },
@@ -51,4 +57,4 @@ const handler = NextAuth({
   }
 });
 
-export { handler as GET, handler as POST }; 
+export { handler as GET, handler as POST };
