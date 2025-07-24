@@ -29,7 +29,14 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password })
       });
-      if (!res.ok) throw new Error("Signup failed");
+      if (!res.ok) {
+        let msg = "Signup failed";
+        try {
+          const data = await res.json();
+          msg = data.message || msg;
+        } catch {}
+        throw new Error(msg);
+      }
       // Log out previous session if any
       await signOut({ redirect: false });
       // Auto-login after signup
